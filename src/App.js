@@ -23,16 +23,20 @@ function App() {
     z: 0,
   });
 
-  const translateViewportTo3D = (viewportX, viewportY, radius) => {
-    // fix projection
-    console.log(viewportX, viewportY);
-    const sphereX = viewportX / radius - 1;
-    const sphereY = viewportY / radius - 1;
+  const translateViewportTo3D = (event, radius) => {
+    const halfDocHeight = document.documentElement.scrollHeight/2
+    const halfDocWidth = document.documentElement.scrollWidth/2
 
-    const sphereZ = 1 - Math.pow(sphereX, 2) - Math.pow(sphereY, 2);
-    // console.log(sphereX, sphereY, sphereZ);
+    const viewportX = event.pageX - halfDocWidth;
+    const viewportY = -(event.pageY - halfDocHeight);
 
-    // sphereZ = sphereZ > 0 ? Math.sqrt(sphereZ) : 0;
+    // Normalize to a sphere of radius 1
+    const sphereX = viewportX / radius;
+    const sphereY = viewportY / radius;
+
+    let sphereZ = 1 - Math.pow(sphereX, 2) - Math.pow(sphereY, 2);
+
+    sphereZ = sphereZ > 0 ? Math.sqrt(sphereZ) : 0;
     
     return {
       sphereX,
@@ -45,20 +49,17 @@ function App() {
     const dotProduct = dot(vec1, vec2);
     const magnitude1 = Math.sqrt(vec1.reduce((accumulator, val) => (
       accumulator + Math.pow(val, 2)
-    )));
+    ), 0));
     const magnitude2 = Math.sqrt(vec2.reduce((accumulator, val) => (
       accumulator + Math.pow(val, 2)
-    )));
+    ), 0));
 
     return Math.sqrt(Math.pow(magnitude1, 2) * Math.pow(magnitude2, 2)) + dotProduct;
   };
 
   const rotate = (event) => {
-    const viewportX = event.pageX - event.currentTarget.offsetLeft;
-    const viewportY = -event.pageY + event.currentTarget.offsetTop;
     const { sphereX, sphereY, sphereZ } = translateViewportTo3D(
-      viewportX,
-      viewportY,
+      event,
       untranslatedRadius,
     );
 
@@ -89,11 +90,8 @@ function App() {
   };
 
   const dragStart = (event) => {
-    const viewportX = event.pageX - event.currentTarget.offsetLeft;
-    const viewportY = event.pageY - event.currentTarget.offsetTop;
     const { sphereX, sphereY, sphereZ } = translateViewportTo3D(
-      viewportX,
-      viewportY,
+      event,
       untranslatedRadius,
     );
 
@@ -107,11 +105,8 @@ function App() {
 
   const dragEnd = (event) => {
     setIsDragging(false);
-    const viewportX = event.pageX - event.currentTarget.offsetLeft;
-    const viewportY = -event.pageY + event.currentTarget.offsetTop;
     const { sphereX, sphereY, sphereZ } = translateViewportTo3D(
-      viewportX,
-      viewportY,
+      event,
       untranslatedRadius,
     );
 
