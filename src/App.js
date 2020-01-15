@@ -58,34 +58,30 @@ function App() {
   };
 
   const rotate = (event) => {
-    const { sphereX, sphereY, sphereZ } = translateViewportTo3D(
-      event,
-      untranslatedRadius,
-    );
-
-    setMouseMoveVector({
-      x: sphereX,
-      y: sphereY,
-      z: sphereZ,
-    });
-
-    const angle = calculateAngle(
-      Object.values(mouseDownVector),
-      Object.values(mouseMoveVector),
-    );
-
-    const axis = cross(
-      Object.values(mouseDownVector),
-      Object.values(mouseMoveVector),
-    );
-
-    const deltaQuaternion = (new Quaternion(angle, axis)).normalize();
-    setQuaternion(deltaQuaternion.mul(startQuaternion.normalize()));
-  };
-
-  const handleMouseMove = (event) => {
     if (isDragging) {
-      rotate(event);
+      const { sphereX, sphereY, sphereZ } = translateViewportTo3D(
+        event,
+        untranslatedRadius,
+      );
+
+      setMouseMoveVector({
+        x: sphereX,
+        y: sphereY,
+        z: sphereZ,
+      });
+
+      const angle = calculateAngle(
+        Object.values(mouseDownVector),
+        Object.values(mouseMoveVector),
+      );
+
+      const axis = cross(
+        Object.values(mouseDownVector),
+        Object.values(mouseMoveVector),
+      );
+
+      const deltaQuaternion = (new Quaternion(angle, axis)).normalize();
+      setQuaternion(deltaQuaternion.mul(startQuaternion.normalize()));
     }
   };
 
@@ -138,7 +134,7 @@ function App() {
         className="viewport"
         onMouseDown={dragStart}
         onMouseUp={dragEnd}
-        onMouseMove={handleMouseMove}
+        onMouseMove={rotate}
       >
         <div
           className="box"
