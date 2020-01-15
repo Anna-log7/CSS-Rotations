@@ -4,8 +4,6 @@ import { dot, cross } from 'mathjs';
 import './App.scss';
 
 function App() {
-  const untranslatedRadius = 500; // diameter value makes this smoother as quaternion rotations are doubled
-  
   const [isDragging, setIsDragging] = useState(false);
 
   const [startQuaternion, setStartQuaternion] = useState(new Quaternion(1, 0, 0, 0));
@@ -13,7 +11,10 @@ function App() {
 
   const [mouseDownVector, setMouseDownVector] = useState([0, 0, 0]);
 
-  const translateViewportTo3D = (event, radius) => {
+  const translateViewportTo3D = (event) => {
+    const radius = document.documentElement.scrollHeight < document.documentElement.scrollWidth
+      ? document.documentElement.scrollHeight
+      : document.documentElement.scrollWidth; // diameter value makes this smoother as quaternion rotations are doubled
     const halfDocHeight = document.documentElement.scrollHeight/2
     const halfDocWidth = document.documentElement.scrollWidth/2
 
@@ -39,7 +40,6 @@ function App() {
     if (isDragging) {
       const mouseMoveVector = translateViewportTo3D(
         event,
-        untranslatedRadius,
       );
 
       let angle = dot(
@@ -61,7 +61,6 @@ function App() {
   const dragStart = (event) => {
     const mouseMoveVector = translateViewportTo3D(
       event,
-      untranslatedRadius,
     );
 
     setMouseDownVector(mouseMoveVector);
@@ -76,38 +75,34 @@ function App() {
   return (
     <div
       className="app"
+      onMouseDown={dragStart}
+      onMouseUp={dragEnd}
+      onMouseMove={rotate}
     >
       <div
-        className="viewport"
-        onMouseDown={dragStart}
-        onMouseUp={dragEnd}
-        onMouseMove={rotate}
+        className="box"
+        style={{
+          transform: `matrix3d(${currentQuaternion.toMatrix4()})`
+        }}
       >
         <div
-          className="box"
-          style={{
-            transform: `matrix3d(${currentQuaternion.toMatrix4()})`
-          }}
-        >
-          <div
-            className="box__front"
-          />
-          <div
-            className="box__back"
-          />
-          <div
-            className="box__top"
-          />
-          <div
-            className="box__bottom"
-          />
-          <div
-            className="box__right"
-          />
-          <div
-            className="box__left"
-          />
-        </div>
+          className="box__front"
+        />
+        <div
+          className="box__back"
+        />
+        <div
+          className="box__top"
+        />
+        <div
+          className="box__bottom"
+        />
+        <div
+          className="box__right"
+        />
+        <div
+          className="box__left"
+        />
       </div>
     </div>
   );

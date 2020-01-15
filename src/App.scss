@@ -15,18 +15,9 @@
   background: linear-gradient(45deg, $primary-color 0%, $secondary-color 100%); 
   display: flex;
   justify-content: center;
+  align-items: center;
   perspective: 400px;
   perspective-origin: 50% 50%;
-}
-
-.viewport {
-  width: 500px;
-  height: 500px;
-  border: 1px solid black;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: auto 0;
 }
 
 .box {

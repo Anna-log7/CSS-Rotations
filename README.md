@@ -2,7 +2,7 @@ This is a demo project utilizing CSS 3D rotations with quaternions.
 
 Click and drag the mouse across the viewport to rotate the object.
 
-![Screenshot of 3D object in the viewport](https://i.imgur.com/CQklvri.png)
+![Screenshot of 3D object in the viewport](https://i.imgur.com/07v4Q0M.png)
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
