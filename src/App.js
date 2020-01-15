@@ -4,24 +4,14 @@ import { dot, cross } from 'mathjs';
 import './App.scss';
 
 function App() {
-  const untranslatedRadius = 500/2; // half of shortest viewport size
+  const untranslatedRadius = 500; // diameter value makes this smoother as quaternion rotations are doubled
   
   const [isDragging, setIsDragging] = useState(false);
 
   const [startQuaternion, setStartQuaternion] = useState(new Quaternion(1, 0, 0, 0));
-  const [quaternion, setQuaternion] = useState(new Quaternion(1, 0, 0, 0));
+  const [currentQuaternion, setCurrentQuaternion] = useState(new Quaternion(1, 0, 0, 0));
 
-  const [mouseDownVector, setMouseDownVector] = useState({
-    x: 0,
-    y: 0,
-    z: 0,
-  });
-
-  const [mouseMoveVector, setMouseMoveVector] = useState({
-    x: 0,
-    y: 0,
-    z: 0,
-  });
+  const [mouseDownVector, setMouseDownVector] = useState([0, 0, 0]);
 
   const translateViewportTo3D = (event, radius) => {
     const halfDocHeight = document.documentElement.scrollHeight/2
@@ -38,92 +28,49 @@ function App() {
 
     sphereZ = sphereZ > 0 ? Math.sqrt(sphereZ) : 0;
     
-    return {
+    return [
       sphereX,
       sphereY,
       sphereZ,
-    };
-  };
-
-  const calculateAngle = (vec1, vec2) => {
-    const dotProduct = dot(vec1, vec2);
-    const magnitude1 = Math.sqrt(vec1.reduce((accumulator, val) => (
-      accumulator + Math.pow(val, 2)
-    ), 0));
-    const magnitude2 = Math.sqrt(vec2.reduce((accumulator, val) => (
-      accumulator + Math.pow(val, 2)
-    ), 0));
-
-    return Math.sqrt(Math.pow(magnitude1, 2) * Math.pow(magnitude2, 2)) + dotProduct;
+    ];
   };
 
   const rotate = (event) => {
     if (isDragging) {
-      const { sphereX, sphereY, sphereZ } = translateViewportTo3D(
+      const mouseMoveVector = translateViewportTo3D(
         event,
         untranslatedRadius,
       );
 
-      setMouseMoveVector({
-        x: sphereX,
-        y: sphereY,
-        z: sphereZ,
-      });
-
-      const angle = calculateAngle(
-        Object.values(mouseDownVector),
-        Object.values(mouseMoveVector),
+      let angle = dot(
+        mouseDownVector,
+        mouseMoveVector,
       );
 
-      const axis = cross(
-        Object.values(mouseDownVector),
-        Object.values(mouseMoveVector),
+      let axis = cross(
+        mouseDownVector,
+        mouseMoveVector,
       );
 
       const deltaQuaternion = (new Quaternion(angle, axis)).normalize();
-      setQuaternion(deltaQuaternion.mul(startQuaternion.normalize()));
+
+      setCurrentQuaternion(deltaQuaternion.mul(startQuaternion.normalize()));
     }
   };
 
   const dragStart = (event) => {
-    const { sphereX, sphereY, sphereZ } = translateViewportTo3D(
+    const mouseMoveVector = translateViewportTo3D(
       event,
       untranslatedRadius,
     );
 
-    setMouseDownVector({
-      x: sphereX,
-      y: sphereY,
-      z: sphereZ,
-    });
+    setMouseDownVector(mouseMoveVector);
     setIsDragging(true);
   };
 
   const dragEnd = (event) => {
     setIsDragging(false);
-    const { sphereX, sphereY, sphereZ } = translateViewportTo3D(
-      event,
-      untranslatedRadius,
-    );
-
-    setMouseMoveVector({
-      x: sphereX,
-      y: sphereY,
-      z: sphereZ,
-    });
-
-    const angle = calculateAngle(
-      Object.values(mouseDownVector),
-      Object.values(mouseMoveVector),
-    );
-
-    const axis = cross(
-      Object.values(mouseDownVector),
-      Object.values(mouseMoveVector),
-    );
-
-    const deltaQuaternion = (new Quaternion(angle, axis)).normalize();
-    setStartQuaternion(deltaQuaternion.mul(startQuaternion.normalize()));
+    setStartQuaternion(currentQuaternion.normalize());
   };
 
   return (
@@ -139,7 +86,7 @@ function App() {
         <div
           className="box"
           style={{
-            transform: `matrix3d(${quaternion.toMatrix4()})`
+            transform: `matrix3d(${currentQuaternion.toMatrix4()})`
           }}
         >
           <div
